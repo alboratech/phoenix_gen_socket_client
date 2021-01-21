@@ -52,7 +52,7 @@ defmodule Phoenix.Channels.GenSocketClient.Transport.WebSocketClient do
 
   @doc false
   def onconnect(_req, state) do
-    GenSocketClient.notify_connected(state.socket)
+    :ok = GenSocketClient.notify_connected(state.socket)
 
     case state.keepalive do
       nil -> {:ok, state}
@@ -64,12 +64,12 @@ defmodule Phoenix.Channels.GenSocketClient.Transport.WebSocketClient do
   def websocket_handle({:pong, _message}, _req, state), do: {:ok, state}
 
   def websocket_handle({type, message}, _req, state) when type in [:text, :binary] do
-    GenSocketClient.notify_message(state.socket, message)
+    :ok = GenSocketClient.notify_message(state.socket, {type, message})
     {:ok, state}
   end
 
   def websocket_handle(other_msg, _req, state) do
-    Logger.warn(fn -> "Unknown message #{inspect(other_msg)}" end)
+    :ok = Logger.warn(fn -> "Unknown message #{inspect(other_msg)}" end)
     {:ok, state}
   end
 
@@ -79,7 +79,7 @@ defmodule Phoenix.Channels.GenSocketClient.Transport.WebSocketClient do
 
   @doc false
   def ondisconnect(reason, state) do
-    GenSocketClient.notify_disconnected(state.socket, reason)
+    :ok = GenSocketClient.notify_disconnected(state.socket, reason)
     {:close, :normal, state}
   end
 

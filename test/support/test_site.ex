@@ -19,8 +19,15 @@ defmodule TestSite do
     @moduledoc false
     use Phoenix.Endpoint, otp_app: :phoenix_gen_socket_client
 
-    socket("/test_socket", TestSite.Socket)
-    socket("/test_socket_updated", TestSite.SocketUpdated)
+    socket("/test_socket", TestSite.Socket,
+      websocket: true,
+      longpoll: false
+    )
+
+    socket("/test_socket_updated", TestSite.SocketUpdated,
+      websocket: true,
+      longpoll: false
+    )
 
     @doc false
     def init(:supervisor, config) do
@@ -32,7 +39,7 @@ defmodule TestSite do
          secret_key_base: String.duplicate("abcdefgh", 8),
          debug_errors: false,
          server: true,
-         pubsub: [adapter: Phoenix.PubSub.PG2, name: __MODULE__]
+         pubsub_server: TestSite.PubSub
        )}
     end
   end
@@ -40,8 +47,6 @@ defmodule TestSite do
   defmodule Socket do
     @moduledoc false
     use Phoenix.Socket
-
-    transport(:websocket, Phoenix.Transports.WebSocket)
 
     # List of exposed channels
     channel("channel:*", TestSite.Channel)
@@ -59,8 +64,6 @@ defmodule TestSite do
   defmodule SocketUpdated do
     @moduledoc false
     use Phoenix.Socket
-
-    transport(:websocket, Phoenix.Transports.WebSocket)
 
     # List of exposed channels
     channel("channel:*", TestSite.Channel)

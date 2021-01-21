@@ -1,3 +1,25 @@
+Changelog
+=========
+
+All notable changes to this project will be documented in this file.
+
+This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 3.3.0
+
+New fork maintained by Albora Tech.
+
+### Added
+
+- Added coveralls.
+- Added dialyzer via `:dialyxir`.
+
+### Changed
+
+- Fixed socket client to allow passing options to serializer for decoding based
+  on the opcode (`:text` or `:binary`).
+- Fixed docs and format.
+
 ## 3.2.2
 
 This library has been retired.

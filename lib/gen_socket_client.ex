@@ -228,7 +228,7 @@ defmodule Phoenix.Channels.GenSocketClient do
     do: GenServer.cast(socket, {:notify_disconnected, reason})
 
   @doc "Forwards a received message to the socket process."
-  @spec notify_message(GenServer.server(), binary) :: :ok
+  @spec notify_message(GenServer.server(), {:text | :binary, binary}) :: :ok
   def notify_message(socket, message), do: GenServer.cast(socket, {:notify_message, message})
 
   # -------------------------------------------------------------------
@@ -271,8 +271,8 @@ defmodule Phoenix.Channels.GenSocketClient do
     invoke_callback(reinit(state), :handle_disconnected, [reason])
   end
 
-  def handle_cast({:notify_message, encoded_message}, state) do
-    decoded_message = state.serializer.decode_message(encoded_message)
+  def handle_cast({:notify_message, {opcode, encoded_message}}, state) do
+    decoded_message = state.serializer.decode_message(encoded_message, opcode: opcode)
     handle_message(decoded_message, state)
   end
 
@@ -392,9 +392,10 @@ defmodule Phoenix.Channels.GenSocketClient do
   defp url(state), do: "#{state.url}?#{URI.encode_query(state.query_params)}"
 
   defp reinit(state) do
-    Process.get_keys()
-    |> Stream.filter(&match?({__MODULE__, _}, &1))
-    |> Enum.each(&Process.delete/1)
+    :ok =
+      Process.get_keys()
+      |> Stream.filter(&match?({__MODULE__, _}, &1))
+      |> Enum.each(&Process.delete/1)
 
     if state.transport_mref != nil, do: Process.demonitor(state.transport_mref, [:flush])
     %{state | transport_pid: nil, transport_mref: nil}
@@ -404,7 +405,7 @@ defmodule Phoenix.Channels.GenSocketClient do
 
   defp next_ref(event, topic) do
     ref = Process.get({__MODULE__, :ref}, 0) + 1
-    Process.put({__MODULE__, :ref}, ref)
+    _ = Process.put({__MODULE__, :ref}, ref)
 
     join_ref = if event == "phx_join", do: ref, else: join_ref(topic)
 

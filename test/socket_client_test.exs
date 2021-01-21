@@ -1,8 +1,8 @@
 defmodule Phoenix.Channels.GenSocketClientTest do
   use ExUnit.Case, async: false
 
-  alias TestSite.Endpoint
   alias Phoenix.Channels.GenSocketClient.TestSocket
+  alias TestSite.Endpoint
 
   setup_all do
     ExUnit.CaptureLog.capture_log(fn -> Endpoint.start_link() end)

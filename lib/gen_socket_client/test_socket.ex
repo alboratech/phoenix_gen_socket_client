@@ -37,19 +37,19 @@ defmodule Phoenix.Channels.GenSocketClient.TestSocket do
   @doc "Connect to the server."
   @spec connect(GenServer.server()) :: :ok
   def connect(socket) do
-    send(socket, :connect)
+    _ = send(socket, :connect)
     :ok
   end
 
   @doc "Connect to the server and override/replace the initialized url and query params."
   @spec connect(GenServer.server(), String.t(), GenSocketClient.query_params()) :: :ok
   def connect(socket, url, query_params) do
-    send(socket, {:connect, url, query_params})
+    _ = send(socket, {:connect, url, query_params})
     :ok
   end
 
   @doc "Waits until the socket is connected or disconnected"
-  @spec wait_connect_status(GenServer.server(), GenServer.timeout()) ::
+  @spec wait_connect_status(GenServer.server(), timeout) ::
           :connected
           | {:disconnected, any}
           | {:error, :timeout}
@@ -69,12 +69,12 @@ defmodule Phoenix.Channels.GenSocketClient.TestSocket do
           GenServer.server(),
           GenSocketClient.topic(),
           GenSocketClient.payload(),
-          GenServer.timeout()
+          timeout
         ) ::
           {:ok, {GenSocketClient.topic(), GenSocketClient.payload()}}
           | {:error, any}
   def join(socket, topic, payload \\ %{}, timeout \\ 5000) do
-    send(socket, {:join, topic, payload})
+    _ = send(socket, {:join, topic, payload})
 
     receive do
       {^socket, :join_ok, result} -> {:ok, result}
@@ -90,12 +90,12 @@ defmodule Phoenix.Channels.GenSocketClient.TestSocket do
           GenServer.server(),
           GenSocketClient.topic(),
           GenSocketClient.payload(),
-          GenServer.timeout()
+          timeout
         ) ::
           {:ok, GenSocketClient.payload()}
           | {:error, any}
   def leave(socket, topic, payload \\ %{}, timeout \\ 5000) do
-    send(socket, {:leave, topic, payload})
+    _ = send(socket, {:leave, topic, payload})
 
     receive do
       {^socket, :leave_ref, _ref} ->
@@ -120,7 +120,7 @@ defmodule Phoenix.Channels.GenSocketClient.TestSocket do
           GenSocketClient.topic(),
           GenSocketClient.event(),
           GenSocketClient.payload(),
-          GenServer.timeout()
+          timeout
         ) ::
           {:ok, GenSocketClient.ref()}
           | {:error, any}
@@ -134,7 +134,7 @@ defmodule Phoenix.Channels.GenSocketClient.TestSocket do
           GenSocketClient.topic(),
           GenSocketClient.event(),
           GenSocketClient.payload(),
-          GenServer.timeout()
+          timeout
         ) ::
           {:ok, GenSocketClient.payload()}
           | {:error, any}
@@ -150,7 +150,7 @@ defmodule Phoenix.Channels.GenSocketClient.TestSocket do
   end
 
   @doc "Awaits a message from the socket."
-  @spec await_message(GenServer.server(), GenServer.timeout()) ::
+  @spec await_message(GenServer.server(), timeout) ::
           {:ok, GenSocketClient.topic(), GenSocketClient.event(), GenSocketClient.payload()}
           | {:error, :timeout}
   def await_message(socket, timeout \\ 5000) do
@@ -178,43 +178,43 @@ defmodule Phoenix.Channels.GenSocketClient.TestSocket do
 
   @doc false
   def handle_connected(_transport, client) do
-    send(client, {self(), :connected})
+    _ = send(client, {self(), :connected})
     {:ok, client}
   end
 
   @doc false
   def handle_disconnected(reason, client) do
-    send(client, {self(), :disconnected, reason})
+    _ = send(client, {self(), :disconnected, reason})
     {:ok, client}
   end
 
   @doc false
   def handle_joined(topic, payload, _transport, client) do
-    send(client, {self(), :join_ok, {topic, payload}})
+    _ = send(client, {self(), :join_ok, {topic, payload}})
     {:ok, client}
   end
 
   @doc false
   def handle_join_error(topic, payload, _transport, client) do
-    send(client, {self(), :join_error, {:server_rejected, topic, payload}})
+    _ = send(client, {self(), :join_error, {:server_rejected, topic, payload}})
     {:ok, client}
   end
 
   @doc false
   def handle_channel_closed(topic, payload, _transport, client) do
-    send(client, {self(), :channel_closed, topic, payload})
+    _ = send(client, {self(), :channel_closed, topic, payload})
     {:ok, client}
   end
 
   @doc false
   def handle_message(topic, event, payload, _transport, client) do
-    send(client, {self(), :message, {topic, event, payload}})
+    _ = send(client, {self(), :message, {topic, event, payload}})
     {:ok, client}
   end
 
   @doc false
   def handle_reply(topic, ref, payload, _transport, client) do
-    send(client, {self(), :reply, topic, ref, payload})
+    _ = send(client, {self(), :reply, topic, ref, payload})
     {:ok, client}
   end
 
